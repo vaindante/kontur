@@ -1,7 +1,7 @@
 0. Preconditions:
     1. Install requirements
-        ```virtualenv -p python3.6 env
-        ./env/bin/pip install -r requirements.txt```
+        virtualenv -p python3.6 env
+        ./env/bin/pip install -r requirements.txt
 
     2. Set environment variables
 
