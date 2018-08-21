@@ -1,0 +1,35 @@
+0. Preconditions:
+    1. Install requirements
+        virtualenv -p python3.6 env
+$       ./env/bin/pip install -r requirements.txt
+
+    2. Set environment variables
+
+    3. Run it
+
+1. Test running example:
+    script = ./env/bin/py.test
+    pytest -v -m "test"
+
+2. Environment variables:
+    0. Python
+        https://docs.python.org/3.5/using/cmdline.html
+
+        $PYTHONUNBUFFERED
+        $PYTHONDONTWRITEBYTECODE
+        $PYTHONTHREADDEBUG
+
+    2. Logs:
+        $LOGGING_LEVEL - уровень логирования (CRITICAL, ERROR, WARNING, INFO, SUBDEBUG, DEBUG, NOTSET)
+        $LOGGING_CONSOLE_LEVEL - уровень логирования (CRITICAL, ERROR, WARNING, INFO, SUBDEBUG, DEBUG, NOTSET)
+
+    3. REST
+        $HOST_API - хост API
+        $HOST_WS - хост WebSocket
+        $PASSWD - Пароль пользователя
+        $EMAIL - email пользователя
+
+3. Test running in docker
+    mkdir -p reports
+    image_id=$(docker build -q .)
+    docker run --rm -v `pwd`/reports:/app/reports --net=host -e TESTS="test" "$image_id"

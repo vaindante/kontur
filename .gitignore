@@ -1,0 +1,11 @@
+reports/
+core/__pycache__/
+__pycache__/
+\.cache/
+\.idea/
+venv/
+.DS_Store
+log/
+projectFilesBackup/
+/allure-report/
+tmp.py
