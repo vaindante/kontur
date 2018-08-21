@@ -51,6 +51,10 @@ class RESTConnectionError(ExceptionTemplate):
         super().__init__(message + '\n' + response_text, *args)
 
 
+class ObjectDataFormattedException(ExceptionTemplate):
+    pass
+
+
 # Exception for mismatch error. Args - msg, mismatch_list
 class MismatchError(ExceptionTemplate):
     def __init__(self, message, mismatch_list, *args):

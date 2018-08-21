@@ -59,7 +59,9 @@ class WSListener(threading.Thread):
         except OSError:
             pass
 
-    def restart(self):
+    def restart(self, ssid=None):
+        if ssid:
+            self.ssid = ssid
         self.stop()
         self.__restart_connection()
         self.start()
