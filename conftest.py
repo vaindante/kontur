@@ -5,26 +5,13 @@ import threading
 
 import pytest
 
-from core import WSListener, RestApiForBack
+from core import RestApiForBack
+from env_config import cfg
 from logger import logger
-
-try:
-    from _local_setting import settings
-except ImportError:
-    settings = dict(
-        host_api=os.getenv('HOST_API'),
-        host_ws=os.getenv('HOST_WS'),
-        passwd=os.getenv('PASSWD'),
-        email=os.getenv('EMAIL')
-    )
 
 
 ########################################################################################################################
 # py.scenarios conf
-def pytest_addoption(parser):
-    pass
-
-
 def pytest_configure(config):
     logger.info('Start py.scenarios configuring')
 
@@ -50,35 +37,11 @@ def pytest_configure(config):
 @pytest.fixture(scope='session')
 def rest():
     return RestApiForBack(
-        url=settings['host_api'],
-        login=settings['email'],
-        passwd=settings['passwd']
+        host=cfg.host,
+        user=cfg.user,
+        token=cfg.token,
+        repos=cfg.repos
     )
-
-
-# WebSocket listener
-@pytest.yield_fixture(scope='module')
-def ws(rest):
-    ws = WSListener(settings['host_ws'], session=rest)
-
-    logger.info('WebSocket: start connection before test')
-    ws.start()
-
-    yield ws
-
-    logger.info('WebSocket: stop connection')
-    try:
-        ws.stop()
-    except BrokenPipeError:
-        pass
-
-    del ws
-
-
-@pytest.fixture(scope='session')
-def log():
-    # Иногда полезно что-то из теста логировать
-    return logger
 
 
 ########################################################################################################################
@@ -116,7 +79,7 @@ def pytest_runtest_makereport(item, call):
 
 def pytest_unconfigure(config):
     # Для локальной ленивой генераци отчета.
-    if os.getenv('GENERATE_REPORT', False):
+    if os.getenv('GENERATE_REPORT', True):
         threading.current_thread()._name = 'Report'
         logger.info('### Create allure report ')
         try:

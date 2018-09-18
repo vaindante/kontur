@@ -24,12 +24,13 @@
         $LOGGING_CONSOLE_LEVEL - уровень логирования (CRITICAL, ERROR, WARNING, INFO, SUBDEBUG, DEBUG, NOTSET)
 
     3. REST
-        $HOST_API - хост API
-        $HOST_WS - хост WebSocket
-        $PASSWD - Пароль пользователя
-        $EMAIL - email пользователя
+        $TEST_HOST - хост API
+        $TEST_TOKEN - токен пользователя
+        $TEST_USER - имя пользователя
+        $TEST_REPOS - репозиторий для редактирования
+
 
 3. Test running in docker
     mkdir -p reports
     image_id=$(docker build -q .)
-    docker run --rm -v `pwd`/reports:/app/reports --net=host -e TESTS="test" "$image_id"
+    docker run --rm -v `pwd`/reports:/app/reports --net=host -e TESTS="test" -e ENV_REST ... "$image_id"

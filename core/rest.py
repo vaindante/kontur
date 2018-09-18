@@ -1,17 +1,18 @@
-import pytest
+from json import dumps
+
 import requests
+
+from exceptions import ResponseException
 
 
 class RestApiForBack:
-    def __init__(self, url, login, passwd, *args, **kwargs):
+    def __init__(self, host, user, token, repos):
         # Авторизация
-        self._default_connect = self.current_connect = self.get_rest_session(url, login, passwd)
-        self._reset_params()
-
-    @pytest.allure.step('Авторизуемся под пользователем {1!r}')
-    def auth_in_back_office(self, login, passwd='test'):
-        self.current_connect = self.get_rest_session(self.url, login, passwd)
-        return self
+        self.host, self.repos = host, repos
+        self.session = requests.session()
+        self.session.auth = (user, token)
+        self.login = self.get(f'{host}/user')['login']
+        self.url = f"{self.host}/repos/{self.login}/{self.repos}/issues"
 
     @staticmethod
     def check_status_code(status_code, need_status_code):
@@ -19,48 +20,35 @@ class RestApiForBack:
             raise Exception('Код состояния HTTP запроса должен быть %s, а сейчас %s' % (need_status_code, status_code))
 
     # Свойтсва класса ##################################################################################################
-    @property
-    def connect(self):
-        return self.current_connect
-
-    @connect.setter
-    def connect(self, conn):
-        if conn == 'default':
-            self.current_connect = self._default_connect
-        else:
-            self.current_connect = conn
-
-    @property
-    def url(self):
-        return self.current_connect.url
-
-    @property
-    def ssid(self):
-        return self.current_connect.ssid
 
     # Запрос #################################################################################################
-    def _reset_params(self):
-        self.request_params = {}
-        self.data = dict()
-
-    # Get REST session
-    @staticmethod
-    def get_rest_session(url, email, passwd):
-        # Auth in BackOffice
-        auth_data = {"email": email, "password": passwd}
-
-        # Create authenticated session for REST client
-        session = requests.session()
-        response = session.post(f'{url}/login', auth_data)
-
-        # Сохраняем информацию по авторизации под кем мы авторизовались
-        setattr(session, 'url', url)
-        setattr(session, 'email', email)
-        setattr(session, 'passwd', passwd)
-        setattr(session, 'ssid', session.cookies.get_dict().get("ssid"))
-
-        # Check status of AUTH in created session
-        if response.status_code != 200:
-            raise ConnectionError('HTTP AUTH Error %r. Status code: %s' % (f'{url}/login', response.status_code))
+    def get(self, url, data=None, params=None):
+        res = self.session.get(url, data=data, params=params)
+        if res.status_code in [200, 201, 202, 204]:
+            return res.json()
         else:
-            return session
+            raise ResponseException(res.text)
+
+    def post(self, url, data=None, params=None):
+        return self.session.post(url, data=data, params=params).json()
+
+    def create_issue(self, data):
+        return self.post(self.url, data=dumps(data))
+
+    def get_issue_list(self):
+        return self.get(self.url)
+
+    def lock_issue(self, _id, comment="too heated"):
+        return self.session.put(
+            f'{self.url}/{_id}/lock',
+            dumps(
+                {
+                    "locked": True,
+                    "active_lock_reason": comment
+                }
+            )
+        ).json()
+
+    def edit_issue(self, _id, data):
+        requests = self.session.patch(f'{self.url}/{_id}', dumps(data))
+        return requests.json()
