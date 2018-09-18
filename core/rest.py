@@ -50,5 +50,4 @@ class RestApiForBack:
         ).json()
 
     def edit_issue(self, _id, data):
-        requests = self.session.patch(f'{self.url}/{_id}', dumps(data))
-        return requests.json()
+        return self.session.patch(f'{self.url}/{_id}', dumps(data)).json()

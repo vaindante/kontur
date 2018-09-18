@@ -18,7 +18,7 @@ test_data = {
 @pytest.mark.test
 @pytest.mark.test_1
 def test_test_1(rest):
-    assert rest.get_issue_list()
+    rest.get_issue_list()
 
 
 @pytest.allure.story('Проверяем что можем создать и редактировать "issues"')
