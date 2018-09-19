@@ -47,7 +47,7 @@ class RestApiForBack:
                     "active_lock_reason": comment
                 }
             )
-        ).json()
+        ).text
 
     def edit_issue(self, _id, data):
         return self.session.patch(f'{self.url}/{_id}', dumps(data)).json()
